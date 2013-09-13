@@ -1,8 +1,12 @@
 <!doctype html>
 <html>
+	<%@page import="de.deltatree.social.web.filter.api.SASFHelper"%>
+	<%@page import="de.deltatree.social.web.filter.api.SASFStaticHelper"%>
+	<%@page import="org.brickred.socialauth.SocialAuthManager"%>
+	<%@page import="org.codehaus.groovy.grails.web.pages.ext.jsp.GroovyPagesPageContext"%>
 	<head>
 		<meta name="layout" content="main"/>
-		<title>Welcome to Grails</title>
+		<title>Socialize</title>
 		<style type="text/css" media="screen">
 			#status {
 				background-color: #eee;
@@ -79,44 +83,55 @@
 				}
 			}
 		</style>
+		<script>
+			function validate(obj) {
+				var value = obj.id.value
+				if( trimString(value).length <= 0 ) {
+					alert("Please enter OpenID URL");
+					return false;
+				} else {
+					return true;
+				}
+			}
+			function trimString(tempString) {
+				return tempString.replace(/^\s*|\s*$/g,"");
+			}
+		</script>
 	</head>
 	<body>
-		<a href="#page-body" class="skip"><g:message code="default.link.skip.label" default="Skip to content&hellip;"/></a>
-		<div id="status" role="complementary">
-			<h1>Application Status</h1>
-			<ul>
-				<li>App version: <g:meta name="app.version"/></li>
-				<li>Grails version: <g:meta name="app.grails.version"/></li>
-				<li>Groovy version: ${org.codehaus.groovy.runtime.InvokerHelper.getVersion()}</li>
-				<li>JVM version: ${System.getProperty('java.version')}</li>
-				<li>Reloading active: ${grails.util.Environment.reloadingAgentEnabled}</li>
-				<li>Controllers: ${grailsApplication.controllerClasses.size()}</li>
-				<li>Domains: ${grailsApplication.domainClasses.size()}</li>
-				<li>Services: ${grailsApplication.serviceClasses.size()}</li>
-				<li>Tag Libraries: ${grailsApplication.tagLibClasses.size()}</li>
-			</ul>
-			<h1>Installed Plugins</h1>
-			<ul>
-				<g:each var="plugin" in="${applicationContext.getBean('pluginManager').allPlugins}">
-					<li>${plugin.name} - ${plugin.version}</li>
-				</g:each>
-			</ul>
-		</div>
-		<div id="page-body" role="main">
-			<h1>Welcome to Grails</h1>
-			<p>Congratulations, you have successfully started your first Grails application! At the moment
-			   this is the default page, feel free to modify it to either redirect to a controller or display whatever
-			   content you may choose. Below is a list of controllers that are currently deployed in this application,
-			   click on each to execute its default action:</p>
+		<%
+			SASFHelper helper = SASFHelper.getHelper(request)
+			SocialAuthManager socialAuthManager
+			if ( helper != null ) {
+				socialAuthManager = helper.getAuthManager()
+				if( socialAuthManager != null ) {
+					GroovyPagesPageContext pageContext = new GroovyPagesPageContext(pageScope)
+					pageContext.setAttribute("socialAuthManager", socialAuthManager)
+				}
+			}
+		%>
 
-			<div id="controller-list" role="navigation">
-				<h2>Available Controllers:</h2>
-				<ul>
-					<g:each var="c" in="${grailsApplication.controllerClasses.sort { it.fullName } }">
-						<li class="controller"><g:link controller="${c.logicalPropertyName}">${c.fullName}</g:link></li>
-					</g:each>
-				</ul>
-			</div>
+		<g:set var="linkedin" value="false"/>
+
+		<g:if test="${socialAuthManager != null}">
+			<g:each var="item" in="${socialAuthManager.connectedProvidersIds}">
+				<g:if test="${'linkedin'.equals(item)}">
+					<g:set var="linkedin" value="true"/>
+				</g:if>
+			</g:each>
+		</g:if>
+
+		<a href="#page-body" class="skip"><g:message code="default.link.skip.label" default="Skip to content&hellip;"/></a>
+		<div id="page-body" role="main">
+			<p>
+				<a href="socialAuth?id=linkedin">LinkedIn</a><br/>
+				<g:if test="${linkedin.equals('true')}">
+					<a href="socialAuth/signout?id=linkedin&mode=signout">Signout</a><br/>
+				</g:if>
+				<g:if test="${linkedin.equals('false')}">
+					<a href="socialAuth?id=linkedin">Signin</a><br/>
+				</g:if>
+			</p>
 		</div>
 	</body>
 </html>
