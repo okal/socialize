@@ -100,7 +100,7 @@
 	</head>
 	<body>
 		<%
-			SASFHelper helper = SASFHelper.getHelper(request)
+			SASFHelper helper = SASFStaticHelper.getHelper(request)
 			SocialAuthManager socialAuthManager
 			if ( helper != null ) {
 				socialAuthManager = helper.getAuthManager()
