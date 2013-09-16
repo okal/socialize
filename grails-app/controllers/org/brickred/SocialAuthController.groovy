@@ -11,7 +11,7 @@ class SocialAuthController {
 
     def index = {
 		println "id::: ${params.id}"
-		redirect uri: "/SAF/SocialAuth?id=${params.id}"
+		redirect uri: "/SAF/SocialAuth?id=${params.id}", absolute: true
 	}
 
 	def signout = {
@@ -28,6 +28,6 @@ class SocialAuthController {
 		} else {
 			flash.message = "Unable to logout from ${params.id}"
 		}
-		redirect uri: "/index.gsp"
+		redirect uri: "/"
 	}
 }
